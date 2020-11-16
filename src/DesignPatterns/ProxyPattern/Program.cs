@@ -6,6 +6,57 @@ using System.Linq;
 
 namespace ProxyPattern
 {
+
+    public class Customer
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class Order
+    {
+        public int Id { get; set; }
+        public string Number { get; set; }
+
+        public virtual Customer Customer { get; set; }
+    }
+
+
+    // Proxy - wariant klasowy
+    public class ProxyOrder : Order
+    {
+        public override Customer Customer
+        {
+            get
+            {
+                if (base.Customer==null)
+                {
+                    // SELECT * FROM Customers WHERE CustomerId=
+                }
+
+                return base.Customer;
+            }
+            set
+            {
+                base.Customer = value;
+            }
+        }
+    }
+
+    // Eadger Loading - Include
+
+    // Lazy Loading
+
+    // order.Customer.Name
+
+
+    // Subject
+    public interface IProductRepository
+    {
+        Product Get(int id);
+        void Add(Product product);
+    }
+
     class Program
     {
         static void Main(string[] args)
@@ -20,24 +71,15 @@ namespace ProxyPattern
 
         private static void GetProductTest()
         {
-            DbProductRepository productRepository = new DbProductRepository();
-            CacheProductRepository cacheProductRepository = new CacheProductRepository();
+            IProductRepository productRepository = new CacheProductRepository(new DbProductRepository());
 
             while (true)
             {
-
                 Console.Write("Podaj id produktu: ");
 
                 if (int.TryParse(Console.ReadLine(), out int productId))
                 {
-                    Product product = cacheProductRepository.Get(productId);
-
-                    if (product == null)
-                    {
-                        product = productRepository.Get(productId);
-
-                        cacheProductRepository.Add(product);
-                    }
+                    Product product = productRepository.Get(productId);
 
                     Console.WriteLine($"{product.Id} {product.Name} {product.UnitPrice:C2}");
                 }
@@ -77,13 +119,18 @@ namespace ProxyPattern
         public decimal UnitPrice { get; set; }
     }
 
-
-    public class CacheProductRepository
+    // Proxy (wariant obiektowy)
+    public class CacheProductRepository : IProductRepository
     {
         private ICollection<Product> products;
 
-        public CacheProductRepository()
+        // RealSubject
+        private IProductRepository db;
+
+        public CacheProductRepository(IProductRepository db)
         {
+            this.db = db;
+
             products = new Collection<Product>();
         }
 
@@ -97,6 +144,7 @@ namespace ProxyPattern
 
         public Product Get(int id)
         {
+            // Check
             Product product = products.SingleOrDefault(p => p.Id == id);
 
             if (product != null)
@@ -106,13 +154,29 @@ namespace ProxyPattern
                 Console.ResetColor();
                 return product;
             }
+            else
+            {
+                // RealSubject
+                product = db.Get(id);
+
+                if (product!=null)
+                {
+                    products.Add(product);
+                }
+            }
 
             return product;
+
+            
         }
 
     }
 
-    public class DbProductRepository
+   
+
+    
+    // RealSubject
+    public class DbProductRepository : IProductRepository
     {
         private ICollection<Product> products;
 
@@ -124,6 +188,11 @@ namespace ProxyPattern
                 new Product(2, "Product 2", 10),
                 new Product(3, "Product 3", 10),
             };
+        }
+
+        public void Add(Product product)
+        {
+            products.Add(product);
         }
 
         public Product Get(int id)

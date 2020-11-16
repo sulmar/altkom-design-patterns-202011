@@ -47,16 +47,24 @@ namespace FactoryMethodPattern
         ConsoleColor Create(decimal amount);
     }
 
+   
+
     // Concrete Factory
     public class ColorFactory : IColorFactory
     {
         public ConsoleColor Create(decimal amount)
         {
+            // match pattterns
+            
             if (amount == 0)
                 return ConsoleColor.Green;
             else
-                if (amount >= 200)
-                return ConsoleColor.Red;
+                 if (amount >= 500 && amount < 1000)
+                return ConsoleColor.Blue;
+            else
+                if (amount >= 1000)
+                return ConsoleColor.Red;       
+
             else
                 return ConsoleColor.White;
         }

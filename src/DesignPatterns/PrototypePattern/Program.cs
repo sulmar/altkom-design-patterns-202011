@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace PrototypePattern
@@ -12,6 +13,11 @@ namespace PrototypePattern
             InvoiceCopyTest();
 
             // ReservationTest();
+
+            Product product = new Product("Mikrofon", 800);
+
+            // dotnet add package FastDeepCloner
+            var copyProduct = FastDeepCloner.DeepCloner.Clone(product);
         }
 
         private static void ReservationTest()
@@ -52,12 +58,12 @@ namespace PrototypePattern
             Product product2 = new Product("Mouse", 150);
 
             Invoice invoice = new Invoice("INV 1", DateTime.Parse("2020-06-01"), DateTime.Parse("2020-06-15"), customer);
-            invoice.Details.Add(new InvoiceDetail(product1));
+            invoice.Details.Add(new InvoiceDetail(product1) { Discount = 0.2m });
             invoice.Details.Add(new InvoiceDetail(product2, 3));
 
             Console.WriteLine(invoice);
 
-            Invoice invoiceCopy = new Invoice("INV 2", DateTime.Now, DateTime.Now, invoice.Customer);
+            Invoice invoiceCopy = (Invoice) invoice.Clone();
 
             Console.WriteLine(invoiceCopy);
 
@@ -83,14 +89,17 @@ namespace PrototypePattern
 
     #region Invoice Model
 
-    public class Invoice
+    public class Invoice : ICloneable
     {
+       
         public Invoice(string number, DateTime createDate, DateTime dueDate, Customer customer)
         {
             Number = number;
             CreateDate = createDate;
             DueDate = dueDate;
             Customer = customer;
+
+            Details = new Collection<InvoiceDetail>();
         }
 
         public string Number { get; set; }
@@ -102,13 +111,30 @@ namespace PrototypePattern
 
         public ICollection<InvoiceDetail> Details { get; set; }
 
+        public object Clone()
+        {
+            Invoice invoiceCopy = new Invoice(this.Number, DateTime.Now, DateTime.Now, this.Customer);
+
+            foreach (InvoiceDetail detail in this.Details)
+            {
+                invoiceCopy.Details.Add((InvoiceDetail) detail.Clone());
+            }
+
+            return invoiceCopy;
+        }
+
         public override string ToString()
         {
             return $"Invoice No {Number} {TotalAmount:C2} {Customer.FullName} paid before {DueDate.ToShortDateString()}";
         }
     }
 
-    public class InvoiceDetail
+    public interface ICloneable<T>
+    {
+        T Clone();
+    }
+
+    public class InvoiceDetail : ICloneable
     {
         public InvoiceDetail(Product product, int quantity = 1)
         {
@@ -120,6 +146,20 @@ namespace PrototypePattern
         public Product Product { get; set; }
         public int Quantity { get; set; }
         public decimal Amount { get; set; }
+        public decimal Discount { get; set; }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();  // Tworzy plytka kopie (shallow copy)
+        }
+
+        //public object Clone()
+        //{
+        //    InvoiceDetail copyInvoiceDetail = new InvoiceDetail(this.Product, this.Quantity);
+        //    copyInvoiceDetail.Amount = this.Amount;
+
+        //    return copyInvoiceDetail;
+        //}
 
         public override string ToString()
         {

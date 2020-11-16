@@ -36,6 +36,7 @@ namespace BuilderPattern
             p.Call();
 
             // Porownanie wydajnosci
+            // dotnet run -c Release
             var summary = BenchmarkRunner.Run<FluentVsStandardBenchmarks>();
 
         }

@@ -50,9 +50,35 @@ namespace SingletonPattern
 
     #region Logger
 
+    public class ConsoleLogger : Logger
+    {
+
+    }
+
     public class Logger
     {
         private string path = "log.txt";
+
+        protected Logger()
+        {
+
+        }
+
+        private static Logger instance;
+
+        public static Logger Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new Logger();
+                }
+
+                return instance;
+            }
+        }
+
 
         public void LogInformation(string message)
         {
@@ -69,7 +95,7 @@ namespace SingletonPattern
 
         public MessageService()
         {
-            logger = new Logger();
+            logger = Logger.Instance;
         }
 
         public void Send(string message)
@@ -84,7 +110,7 @@ namespace SingletonPattern
 
         public PrintService()
         {
-            logger = new Logger();
+            logger = Logger.Instance;
         }
 
         public void Print(string content, int copies)

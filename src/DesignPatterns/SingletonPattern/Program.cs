@@ -11,7 +11,27 @@ namespace SingletonPattern
 
             LoggerTest();
 
+            ConfigurationManagerTest();
+
             ApplicationContextTest();
+        }
+
+        private static void ConfigurationManagerTest()
+        {
+            ConfigurationManager configurationManager1 = LazySingleton<ConfigurationManager>.Instance;
+            ConfigurationManager configurationManager2 = LazySingleton<ConfigurationManager>.Instance;
+
+           
+
+            if (ReferenceEquals(configurationManager1, configurationManager2))
+            {
+                Console.WriteLine("The same instances");
+            }
+            else
+            {
+                Console.WriteLine("Different instances");
+            }
+
         }
 
         private static void LoggerTest()
@@ -55,6 +75,58 @@ namespace SingletonPattern
 
     }
 
+    public class ConfigurationManager
+    {
+        public string Address { get; set; }
+        public int Port { get; set; }
+
+        public ConfigurationManager()
+        {
+
+        }
+    }
+
+    // Klasa generyczna (Szablon)
+    public class Singleton<T>
+        where T : new()
+    {
+        private static object syncLock = new object();
+
+        protected Singleton()
+        {
+
+        }
+
+        private static T instance;
+
+        public static T Instance
+        {
+            get
+            {
+                lock (syncLock)
+                {
+                    if (instance == null)
+                    {
+                        instance = new T();
+                    }
+                }
+
+                return instance;
+            }
+        }
+    }
+
+
+    public class LazySingleton<T>
+        where T : new()
+    {
+        private static readonly Lazy<T> lazy = new Lazy<T>(() => new T());
+
+        public static T Instance => lazy.Value;
+
+
+    }
+
     public class Logger
     {
         private string path = "log.txt";
@@ -64,15 +136,23 @@ namespace SingletonPattern
 
         }
 
+
+
+        private static object syncLock = new object();
+
         private static Logger instance;
 
         public static Logger Instance
         {
             get
             {
-                if (instance == null)
+                lock (syncLock)
                 {
-                    instance = new Logger();
+
+                    if (instance == null)
+                    {
+                        instance = new Logger();
+                    }
                 }
 
                 return instance;
@@ -137,6 +217,9 @@ namespace SingletonPattern
         public string LoggedUser { get; set; }
         public DateTime LoggedDate { get; set; }
         public Customer SelectedCustomer { get; set; }
+        public int SelectedInvoiceId { get; set; }
+        public int SelectedOrderId { get; set; }
+
     }
 
     public class Customer

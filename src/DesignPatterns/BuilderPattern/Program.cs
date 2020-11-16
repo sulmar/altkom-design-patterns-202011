@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BenchmarkDotNet.Running;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -15,6 +16,8 @@ namespace BuilderPattern
         {
             Console.WriteLine("Hello Builder Pattern!");
 
+            
+
             SalesReportTest();
 
             PhoneTest();
@@ -28,9 +31,12 @@ namespace BuilderPattern
                 .WithSubject(".Design Pattern")
                 .Call();
 
-            //FluentPhone p = FluentPhone.Hangup();
-            //p.From("6546745645");
-            //p.Call();
+            FluentPhone p = FluentPhone.Hangup();
+            p.From("6546745645");
+            p.Call();
+
+            // Porownanie wydajnosci
+            var summary = BenchmarkRunner.Run<FluentVsStandardBenchmarks>();
 
         }
 

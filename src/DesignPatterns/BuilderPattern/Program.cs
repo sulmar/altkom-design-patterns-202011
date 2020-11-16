@@ -16,8 +16,6 @@ namespace BuilderPattern
         {
             Console.WriteLine("Hello Builder Pattern!");
 
-            
-
             SalesReportTest();
 
             PhoneTest();
@@ -25,15 +23,14 @@ namespace BuilderPattern
             FluentPhone
                 .Hangup()
                 .From("555777555")
-                .From("555000000")
                 .To("555999111")
                 .To("555666666")
                 .WithSubject(".Design Pattern")
                 .Call();
 
-            FluentPhone p = FluentPhone.Hangup();
-            p.From("6546745645");
-            p.Call();
+            //FluentPhone p = FluentPhone.Hangup();
+            //p.From("6546745645");
+            //p.Call();
 
             // Porownanie wydajnosci
             // dotnet run -c Release
@@ -407,38 +404,57 @@ namespace BuilderPattern
 
     #region Phone
 
-    //FluentPhone
-    //           .Hangup()
-    //            .From("555777555")
-    //            .To("555999111")
-    //            .WithSubject(".Design Pattern")
-    //            .Call();
+    public interface IFrom
+    {
+        ITo From(string number);
+    }
+
+    public interface IToOrCall : ITo, ICall, ISubject
+    {
+    }
+
+    public interface ITo
+    {
+        IToOrCall To(string number);
+    }
+
+    public interface ISubject
+    {
+        ICall WithSubject(string subject);
+    }
+
+    public interface ICall
+    {
+        void Call();
+    }
 
     // Builder w wersji FluentAPI
-    public class FluentPhone
+    public class FluentPhone : IFrom, ITo, ICall, ISubject, IToOrCall
     {
         private string from;
-        private string to;
+
+        public Collection<string> tos { get; set; } = new Collection<string>();
+
         private string subject;
 
-        public static FluentPhone Hangup()
+        public static IFrom Hangup()
         {
             return new FluentPhone();
         }
 
-        public FluentPhone From(string number)
+        public ITo From(string number)
         {
             this.from = number;
             return this;
         }
 
-        public FluentPhone To(string number)
+        public IToOrCall To(string number)
         {
-            this.to = number;
+            this.tos.Add(number);
             return this;
         }
 
-        public FluentPhone WithSubject(string subject)
+        public ICall WithSubject(string subject)
         {
             this.subject = subject;
             return this;
@@ -447,13 +463,17 @@ namespace BuilderPattern
         // Build
         public void Call()
         {
-            if (!string.IsNullOrEmpty(subject))
+            foreach (var to in tos)
             {
-                Call(from, to, subject);
-            }
-            else
-            {
-                Call(from, to);
+                if (!string.IsNullOrEmpty(subject))
+                {
+
+                    Call(from, to, subject);
+                }
+                else
+                {
+                    Call(from, to);
+                }
             }
             
         }

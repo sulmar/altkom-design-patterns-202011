@@ -23,15 +23,15 @@ namespace BuilderPattern
 
         }
 
-        [Benchmark]
-        public void Standard()
-        {
-            FluentPhone p = FluentPhone.Hangup();
-            p.From("6546745645");
-            p.To("555999111");
-            p.WithSubject(".Design Pattern");
-            p.Call();
-        }
+        //[Benchmark]
+        //public void Standard()
+        //{
+        //    var p = FluentPhone.Hangup();
+        //    p.From("6546745645");
+        //    p.To("555999111");
+        //    p.WithSubject(".Design Pattern");
+        //    p.Call();
+        //}
 
     }
 

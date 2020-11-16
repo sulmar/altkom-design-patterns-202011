@@ -20,41 +20,20 @@ namespace AdapterPattern
 
         private static void CrystalReportTest()
         {
-            ReportDocument rpt = new ReportDocument();
-            rpt.Load("report1.rpt");
-
-            ConnectionInfo connectInfo = new ConnectionInfo()
-            {
-                ServerName = "MyServer",
-                DatabaseName = "MyDb",
-                UserID = "myuser",
-                Password = "mypassword"
-            };
-
-            foreach (Table table in rpt.Database.Tables)
-            {
-                table.LogOnInfo.ConnectionInfo = connectInfo;
-                table.ApplyLogOnInfo(table.LogOnInfo);
-            }
-
-            rpt.ExportToDisk(ReportDocument.ExportFormatType.PortableDocFormat, "report1.pdf");
+            IReportAdapter reportAdapter = new CrystalReportsAdapter();
+            reportAdapter.Generate("raport1.rpt", "raport1.pdf");
         }
 
         private static void MotorolaRadioTest()
         {
-            MotorolaRadio radio = new MotorolaRadio();
-            radio.PowerOn("1234");
-            radio.SelectChannel(10);
-            radio.Send("Hello World!");
-            radio.PowerOff();
+            IRadioAdapter radio = new MotorolaRadioAdapter("1234");
+            radio.Send(10, "Hello World!");
         }
 
         private static void HyteriaRadioTest()
         {
-            HyteraRadio radio = new HyteraRadio();
-            radio.Init();
-            radio.SendMessage(10, "Hello World!");
-            radio.Release();
+            IRadioAdapter radio = new HyteraRadioAdapter();
+            radio.Send(10, "Hello World!");
         }
     }
 

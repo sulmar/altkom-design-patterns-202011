@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace CrystalDecisions.CrystalReports
 {
+
     public class ReportDocument
     {
         public Database Database { get; set; }

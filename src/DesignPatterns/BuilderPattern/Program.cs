@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Xml;
 
 namespace BuilderPattern
@@ -14,34 +15,45 @@ namespace BuilderPattern
         {
             Console.WriteLine("Hello Builder Pattern!");
 
+            SalesReportTest();
+
             PhoneTest();
 
-            SalesReportTest();
+            FluentPhone
+                .Hangup()
+                .From("555777555")
+                .From("555000000")
+                .To("555999111")
+                .To("555666666")
+                .WithSubject(".Design Pattern")
+                .Call();
+
+            //FluentPhone p = FluentPhone.Hangup();
+            //p.From("6546745645");
+            //p.Call();
+
         }
 
         private static void SalesReportTest()
         {
+            bool hasSectionByGender = true;
+
             FakeOrdersService ordersService = new FakeOrdersService();
             IEnumerable<Order> orders = ordersService.Get();
 
-            SalesReport salesReport = new SalesReport();
+            ISalesReportBuilder salesReportBuilder = new MySalesReportBuilder(orders);
 
-            salesReport.Title = "Raport sprzedaży";
-            salesReport.CreateDate = DateTime.Now;
-            salesReport.TotalSalesAmount = orders.Sum(s => s.Amount);
+            salesReportBuilder.AddHeader();
 
-            salesReport.GenderDetails = orders
-                .GroupBy(o => o.Customer.Gender)
-                .Select(g => new GenderReportDetail(
-                            g.Key,
-                            g.Sum(x => x.Details.Sum(d => d.Quantity)),
-                            g.Sum(x => x.Details.Sum(d => d.LineTotal))));
+            if (hasSectionByGender)
+            {
+                salesReportBuilder.AddSectionByGender();
+            }
 
-            salesReport.ProductDetails = orders
-                .SelectMany(o => o.Details)
-                .GroupBy(o => o.Product)
-                .Select(g => new ProductReportDetail(g.Key, g.Sum(p => p.Quantity), g.Sum(p => p.LineTotal)));
+            salesReportBuilder.AddSectionByProduct();
 
+            SalesReport salesReport = salesReportBuilder.Build();
+                
             Console.WriteLine(salesReport);
 
         }
@@ -120,7 +132,127 @@ namespace BuilderPattern
         }
     }
 
-  
+
+    // Abstract builder
+    public interface ISalesReportBuilder
+    {
+        void AddHeader();
+        void AddSectionByGender();
+        void AddSectionByProduct();
+        void AddFooter();
+        SalesReport Build();
+    }
+
+    // Concrete builder
+    public class LazySalesReportBuilder : ISalesReportBuilder
+    {
+        private IEnumerable<Order> orders;
+
+        private bool hasHeader;
+        private bool hasSectionByGender;
+        private bool hasFooter;
+
+        public LazySalesReportBuilder(IEnumerable<Order> orders)
+        {
+            this.orders = orders;
+        }
+
+        public void AddFooter()
+        {
+            hasFooter = true;
+        }
+
+        public void AddHeader()
+        {
+            hasHeader = true;
+        }
+
+        public void AddSectionByGender()
+        {
+            hasSectionByGender = true;
+        }
+
+        public void AddSectionByProduct()
+        {
+            throw new NotImplementedException();
+        }
+
+        public SalesReport Build()
+        {
+            SalesReport salesReport = new SalesReport();
+
+            if (hasHeader)
+            {
+                CreateHeader(salesReport);
+            }
+
+            if (hasSectionByGender)
+            {
+
+            }
+
+            return salesReport;
+
+        }
+
+        private void CreateHeader(SalesReport salesReport)
+        {
+            salesReport.Title = "Raport sprzedaży";
+            salesReport.CreateDate = DateTime.Now;
+            salesReport.TotalSalesAmount = orders.Sum(s => s.Amount);
+        }
+    }
+
+
+    public class MySalesReportBuilder : ISalesReportBuilder
+    {
+        private IEnumerable<Order> orders;
+
+        private SalesReport salesReport;
+
+        public MySalesReportBuilder(IEnumerable<Order> orders)
+        {
+            this.orders = orders;
+
+            this.salesReport = new SalesReport();
+        }
+
+        public void AddHeader()
+        {
+            salesReport.Title = "Raport sprzedaży";
+            salesReport.CreateDate = DateTime.Now;
+            salesReport.TotalSalesAmount = orders.Sum(s => s.Amount);
+        }
+     
+        public void AddSectionByGender()
+        {
+            salesReport.GenderDetails = orders
+                    .GroupBy(o => o.Customer.Gender)
+                    .Select(g => new GenderReportDetail(
+                                g.Key,
+                                g.Sum(x => x.Details.Sum(d => d.Quantity)),
+                                g.Sum(x => x.Details.Sum(d => d.LineTotal))));
+        }
+
+        public void AddSectionByProduct()
+        {
+            salesReport.ProductDetails = orders
+                .SelectMany(o => o.Details)
+                .GroupBy(o => o.Product)
+                .Select(g => new ProductReportDetail(g.Key, g.Sum(p => p.Quantity), g.Sum(p => p.LineTotal)));
+        }
+
+        public void AddFooter()
+        {
+            throw new NotImplementedException();
+        }
+
+        public SalesReport Build()
+        {
+            return salesReport;
+        }
+    }
+
     public class SalesReport
     {
         public string Title { get; set; }
@@ -133,27 +265,27 @@ namespace BuilderPattern
 
         public override string ToString()
         {
-            string output = string.Empty;
+            StringBuilder builder = new StringBuilder();
 
-            output += "------------------------------\n";
+            builder.AppendLine("------------------------------");
 
-            output += $"{Title} {CreateDate}\n";
-            output += $"Total Sales Amount: {TotalSalesAmount:c2}\n";
+            builder.AppendLine($"{Title} {CreateDate}");
+             builder.AppendLine($"Total Sales Amount: {TotalSalesAmount:c2}");
 
-            output += "------------------------------\n";
+             builder.AppendLine("------------------------------");
 
-            output += "Total By Products:\n";
+             builder.AppendLine("Total By Products:");
             foreach (var detail in ProductDetails)
             {
-                output += $"- {detail.Product.Name} {detail.Quantity} {detail.TotalAmount:c2}\n";
+                 builder.AppendLine($"- {detail.Product.Name} {detail.Quantity} {detail.TotalAmount:c2}");
             }
-            output += "Total By Gender:\n";
+             builder.AppendLine("Total By Gender:");
             foreach (var detail in GenderDetails)
             {
-                output += $"- {detail.Gender} {detail.Quantity} {detail.TotalAmount:c2}\n";
+                 builder.AppendLine($"- {detail.Gender} {detail.Quantity} {detail.TotalAmount:c2}");
             }
 
-            return output;
+            return builder.ToString();
         }
     }
 
@@ -267,6 +399,70 @@ namespace BuilderPattern
     #endregion
 
     #region Phone
+
+    //FluentPhone
+    //           .Hangup()
+    //            .From("555777555")
+    //            .To("555999111")
+    //            .WithSubject(".Design Pattern")
+    //            .Call();
+
+    // Builder w wersji FluentAPI
+    public class FluentPhone
+    {
+        private string from;
+        private string to;
+        private string subject;
+
+        public static FluentPhone Hangup()
+        {
+            return new FluentPhone();
+        }
+
+        public FluentPhone From(string number)
+        {
+            this.from = number;
+            return this;
+        }
+
+        public FluentPhone To(string number)
+        {
+            this.to = number;
+            return this;
+        }
+
+        public FluentPhone WithSubject(string subject)
+        {
+            this.subject = subject;
+            return this;
+        }
+
+        // Build
+        public void Call()
+        {
+            if (!string.IsNullOrEmpty(subject))
+            {
+                Call(from, to, subject);
+            }
+            else
+            {
+                Call(from, to);
+            }
+            
+        }
+
+        private void Call(string from, string to, string subject)
+        {
+            Console.WriteLine($"Calling from {from} to {to} with subject {subject}");
+        }
+
+        private void Call(string from, string to)
+        {
+            Console.WriteLine($"Calling from {from} to {to}");
+        }
+
+
+    }
 
     public class Phone
     {

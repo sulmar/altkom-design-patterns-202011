@@ -12,9 +12,9 @@ namespace StrategyPattern
         {
             Console.WriteLine("Hello Strategy Pattern!");
 
-            HappyHoursOrderCalculatorTest();
+            // HappyHoursOrderCalculatorTest();
 
-
+            SmartHappyHoursOrderCalculatorTest();
         }
 
         private static void HappyHoursOrderCalculatorTest()
@@ -34,6 +34,43 @@ namespace StrategyPattern
             decimal discount = calculator.CalculateDiscount(order);
 
             Console.WriteLine($"Original amount: {order.Amount:C2} Discount: {discount:C2}");
+        }
+
+        private static void SmartHappyHoursOrderCalculatorTest()
+        {
+            Customer customer = new Customer("Anna", "Kowalska");
+
+            Order order = CreateOrder(customer);
+
+            ICanDiscountStrategy canDiscountStrategy = new HappyHoursCanDiscountStrategy(TimeSpan.Parse("09:00"), TimeSpan.Parse("16:00"));
+            ICalculateDiscountStrategy calculateDiscountStrategy = new PercentageCalculateDiscountStrategy(0.2m);
+
+            SmartDiscountOrderCalculator calculator = new SmartDiscountOrderCalculator(canDiscountStrategy, calculateDiscountStrategy);
+
+            decimal discount = calculator.CalculateDiscount(order);
+
+            Console.WriteLine($"Original amount: {order.Amount:C2} Discount: {discount:C2}");
+        }
+
+        private static void PromotionTest()
+        {
+            ICanDiscountStrategy canDiscountStrategy = new HappyHoursCanDiscountStrategy(TimeSpan.Parse("09:00"), TimeSpan.Parse("16:00"));
+            ICalculateDiscountStrategy calculateDiscountStrategy = new PercentageCalculateDiscountStrategy(0.2m);
+
+            Promotion promotion = new Promotion
+            {
+                Id = Guid.NewGuid(),
+                Name = "Happy Hours 2020",
+                From = DateTime.Parse("2020-01-01"),
+                To = DateTime.Parse("2020-12-31"),
+                CanDiscountStrategy = canDiscountStrategy,
+                CalculateDiscountStrategy = calculateDiscountStrategy
+            };
+
+            Customer customer = new Customer("Anna", "Kowalska");
+            Order order = CreateOrder(customer);
+            order.Promotion = promotion;
+
         }
 
         private static void GenderOrderCalculatorTest()
@@ -66,6 +103,20 @@ namespace StrategyPattern
 
     #region Models
 
+
+    public class Promotion
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public DateTime From { get; set; }
+        public DateTime? To { get; set; }
+        
+        public ICanDiscountStrategy CanDiscountStrategy { get; set; }   // -> serializacja do json
+        public ICalculateDiscountStrategy CalculateDiscountStrategy { get; set; } // -> serializacja do json
+
+        public string CanDiscountStrategyJson { get; set; }
+    }
+
     public class Order
     {
         public DateTime OrderDate { get; set; }
@@ -73,6 +124,8 @@ namespace StrategyPattern
         public decimal Amount => Details.Sum(p => p.LineTotal);
 
         public ICollection<OrderDetail> Details = new Collection<OrderDetail>();
+
+        public Promotion Promotion { get; set; }
 
         public void AddDetail(Product product, int quantity = 1)
         {

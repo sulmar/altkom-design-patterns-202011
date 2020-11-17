@@ -11,7 +11,18 @@ namespace StatePattern
         {
             Console.WriteLine("Hello State Pattern!");
 
-           
+            LampProxyTest();
+
+            // TrafficLightTest();
+
+            // OrderTest();
+
+            // LampTest();
+
+        }
+
+        private static void TrafficLightTest()
+        {
             TrafficLight trafficLight = new TrafficLight(new MyTrafficLightService());
 
             Console.WriteLine(trafficLight.Graph);
@@ -34,12 +45,26 @@ namespace StatePattern
                 Console.WriteLine(trafficLight.State);
 
             }
-
-            // OrderTest();
-
-            // LampTest();
-
         }
+
+
+        private static void LampProxyTest()
+        {
+            LampStateMachine machine = new LampStateMachine();
+
+            LampProxy lamp = new LampProxy(machine);
+            Console.WriteLine(lamp.State);
+
+            lamp.Push();
+            Console.WriteLine(lamp.State);
+
+            lamp.Push();
+            Console.WriteLine(lamp.State);
+
+            lamp.Push();
+            Console.WriteLine(lamp.State);
+        }
+
 
         private static void LampTest()
         {
@@ -154,6 +179,57 @@ namespace StatePattern
         }
 
         public void Push() => machine.Fire(LampTrigger.Push);
+    }
+
+    public class LampStateMachine : StateMachine<LampState, LampTrigger>
+    {
+        public LampStateMachine(LampState initialState = LampState.Off) : base(initialState)
+        {
+            Configure(LampState.Off)
+                .Permit(LampTrigger.Push, LampState.On);
+
+            Configure(LampState.On)
+                .Permit(LampTrigger.Push, LampState.Off);
+        }
+    }
+
+
+    public class LampProxy : LampPoco
+    {
+        private readonly LampStateMachine machine;
+
+        public LampProxy(LampStateMachine machine)
+        {
+            this.machine = machine;
+        }
+
+        public override LampState State => machine.State;
+
+        public override void Push() => machine.Fire(LampTrigger.Push);
+    }
+
+    public class LampPoco
+    {
+        public virtual LampState State { get; set; }
+
+        public LampPoco()
+        {
+            State = LampState.Off;
+        }
+
+        public virtual void Push()
+        {
+            if (State == LampState.Off)
+            {
+                State = LampState.On;
+            }
+            else
+            if (State == LampState.On)
+            {
+                State = LampState.Off;
+            }
+
+        }
     }
 
     public enum LampState

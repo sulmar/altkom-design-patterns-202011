@@ -47,6 +47,58 @@ namespace StrategyPattern
         }
     }
 
+    public class GenderFixedDiscountStrategy : IDiscountStrategy
+    {
+        private readonly Gender gender;
+        private readonly decimal fixedAmount;
+
+        public GenderFixedDiscountStrategy(decimal fixedAmount, Gender gender = Gender.Male)
+        {
+            this.gender = gender;
+            this.fixedAmount = fixedAmount;
+        }
+
+        public decimal CalculateDiscount(Order order)
+        {
+            if (order.Amount < fixedAmount)
+                return order.Amount;
+            else
+                return fixedAmount;
+        }
+
+        public bool CanDiscount(Order order)
+        {
+            return order.Customer.Gender == gender;
+        }
+    }
+
+    public class HappyHoursFixedDiscountStrategy : IDiscountStrategy
+    {
+        private readonly TimeSpan from;
+        private readonly TimeSpan to;
+        private readonly decimal fixedAmount;
+
+        public HappyHoursFixedDiscountStrategy(TimeSpan from, TimeSpan to, decimal fixedAmount)
+        {
+            this.from = from;
+            this.to = to;
+            this.fixedAmount = fixedAmount;
+        }
+
+        public decimal CalculateDiscount(Order order)
+        {
+            if (order.Amount < fixedAmount)
+                return order.Amount;
+            else
+                return fixedAmount;
+        }
+
+        public bool CanDiscount(Order order)
+        {
+            return order.OrderDate.TimeOfDay >= from && order.OrderDate.TimeOfDay <= to;
+        }
+    }
+
     public class GenderDiscountStrategy : IDiscountStrategy
     {
         private readonly Gender gender;

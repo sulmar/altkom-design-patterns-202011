@@ -46,18 +46,15 @@ namespace VisitorPattern
 
     #region Models
 
-    public class Form
+    public class Form : ControlBase
     {
         public string Name { get; set; }
         public string Title { get; set; }
         public ICollection<ControlBase> Body { get; set; }
 
-        public void Accept(IVisitor visitor)
+        public override void Accept(IVisitor visitor)
         {
-            foreach (ControlBase control in Body)
-            {
-                control.Accept(visitor);
-            }
+            visitor.Visit(this);
         }
     }
 
@@ -142,6 +139,7 @@ namespace VisitorPattern
 
     public interface IVisitor
     {
+        void Visit(Form form);
         void Visit(LabelControl control);
         void Visit(TextBoxControl control);
         void Visit(CheckBoxControl control);
@@ -211,6 +209,14 @@ namespace VisitorPattern
         {
             throw new NotImplementedException();
         }
+
+        public void Visit(Form form)
+        {           
+            foreach (ControlBase control in form.Body)
+            {
+                control.Accept(this);
+            }
+        }
     }
 
     // Concrete Visitor
@@ -240,6 +246,11 @@ namespace VisitorPattern
         }
 
         public void Visit(RadioButtonControl control)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(Form form)
         {
             throw new NotImplementedException();
         }

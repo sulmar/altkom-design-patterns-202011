@@ -50,7 +50,11 @@ namespace StatePattern
 
         private static void LampProxyTest()
         {
-            LampStateMachine machine = new LampStateMachine();
+            string configuration = "A";
+
+            ILampStateMachineFactory lampStateMachineFactory = new LampStateMachineFactory();
+
+            LampStateMachineBase machine = lampStateMachineFactory.Create(configuration);
 
             LampProxy lamp = new LampProxy(machine);
             Console.WriteLine(lamp.State);
@@ -98,6 +102,25 @@ namespace StatePattern
     }
 
     #region Models
+
+    public interface ILampStateMachineFactory
+    {
+        LampStateMachineBase Create(string configuration);
+    }
+
+    public class LampStateMachineFactory : ILampStateMachineFactory
+    {
+        public LampStateMachineBase Create(string configuration)
+        {
+            switch(configuration)
+            {
+                case "A": return new LampStateMachineA();
+                case "B": return new LampStateMachineB();
+
+                default: throw new NotSupportedException(configuration);
+            }
+        }
+    }
 
     public class Order
     {
@@ -181,9 +204,29 @@ namespace StatePattern
         public void Push() => machine.Fire(LampTrigger.Push);
     }
 
-    public class LampStateMachine : StateMachine<LampState, LampTrigger>
+    public abstract class LampStateMachineBase : StateMachine<LampState, LampTrigger>
     {
-        public LampStateMachine(LampState initialState = LampState.Off) : base(initialState)
+        protected LampStateMachineBase(LampState initialState = LampState.Off) : base(initialState)
+        {
+        }
+    }
+
+    public class LampStateMachineA : LampStateMachineBase
+    {
+        public LampStateMachineA(LampState initialState = LampState.Off) : base(initialState)
+        {
+            Configure(LampState.Off)
+                .Permit(LampTrigger.Push, LampState.On);
+
+            Configure(LampState.On)
+                .Permit(LampTrigger.Push, LampState.Off);
+        }
+    }
+
+
+    public class LampStateMachineB : LampStateMachineBase
+    {
+        public LampStateMachineB(LampState initialState = LampState.Off) : base(initialState)
         {
             Configure(LampState.Off)
                 .Permit(LampTrigger.Push, LampState.On);
@@ -196,9 +239,9 @@ namespace StatePattern
 
     public class LampProxy : LampPoco
     {
-        private readonly LampStateMachine machine;
+        private readonly LampStateMachineBase machine;
 
-        public LampProxy(LampStateMachine machine)
+        public LampProxy(LampStateMachineBase machine)
         {
             this.machine = machine;
         }

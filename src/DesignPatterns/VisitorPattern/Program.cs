@@ -129,6 +129,14 @@ namespace VisitorPattern
         }
     }
 
+    public class RadioButtonControl : ControlBase
+    {
+        public override void Accept(IVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+    }
+
 
     // Abstract Visitor
 
@@ -138,6 +146,7 @@ namespace VisitorPattern
         void Visit(TextBoxControl control);
         void Visit(CheckBoxControl control);
         void Visit(ButtonControl control);
+        void Visit(RadioButtonControl control);
         string Output { get; }
     }
 
@@ -197,10 +206,44 @@ namespace VisitorPattern
         {
             builder.AppendLine($"<button><img src='{control.ImageSource}'/>{control.Caption}</button>");
         }
+
+        public void Visit(RadioButtonControl control)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     // Concrete Visitor
 
+    public class MarkdownVisitor : IVisitor
+    {
+        public string Output => throw new NotImplementedException();
+
+        public void Visit(LabelControl control)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(TextBoxControl control)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(CheckBoxControl control)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(ButtonControl control)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(RadioButtonControl control)
+        {
+            throw new NotImplementedException();
+        }
+    }
 
     #endregion
 

@@ -12,25 +12,30 @@ namespace ChainOfResponsibilityPattern
         {
             Console.WriteLine("Hello Chain of Responsibility Pattern!");
 
-            CacheProductService cacheProductService = new CacheProductService();
-            IProductService productService = new DbProductService();
+            Order order = new Order { TotalAmount = 1000 };
 
-            int productId = 1;
-
-            for (int i = 0; i < 3; i++)
+            if (order.TotalAmount>100) // kier
             {
-                Product product = cacheProductService.Get(productId);
 
-                if (product == null)
-                {
-                    product = productService.Get(productId);
-
-                    cacheProductService.Set(productId, product);
-                }
-
-                Console.WriteLine(product);
             }
+            else if (order.TotalAmount > 1000) // dyr
+            {
+
+            }
+            else if (order.TotalAmount > 10000) // prezes
+            {
+
+            }
+
+
+
         }
+    }
+
+
+    public class Order
+    {
+        public decimal TotalAmount { get; set; }
     }
 
     public class Product

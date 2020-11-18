@@ -97,8 +97,41 @@ namespace DRY
 
             Customer customer = new Customer();
 
+            Order order = new Order();
+
+            foreach (var detail in order.Details.ToList())
+            {
+
+            }
+            
+
+
+
+
+            if (null!=customer)
+            {
+                Console.WriteLine(customer.FirstName);
+            }
+
         }
     }
+
+
+    public class CustomersViewModel
+    {
+        public Customer SelectedCustomer { get; set; }
+
+        public bool IsSelectedCustomer => SelectedCustomer != null;
+
+        public void Send()
+        {
+            if (IsSelectedCustomer)
+            {
+                Console.WriteLine(SelectedCustomer.FirstName);
+            }
+        }
+    }
+
 
     public abstract class SearchCriteria : Base
     {
@@ -133,6 +166,13 @@ namespace DRY
         public DateTime Birthday { get; set; }
     }
 
+
+    public class Order : BaseEntity
+    {
+        public string Number { get; set; }
+        public IEnumerable<OrderDetail> Details { get; set; }
+    }
+
     public class OrderDetail : BaseEntity
     {
         public SaleItem Item { get; set; }
@@ -153,5 +193,10 @@ namespace DRY
     public class Service : SaleItem
     {
         public TimeSpan Duration { get; set; }
+
+        //public void DoWork()
+        //{
+        //    // ...
+        //}
     }
 }

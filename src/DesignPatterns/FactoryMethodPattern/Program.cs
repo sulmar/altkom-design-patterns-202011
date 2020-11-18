@@ -2,13 +2,64 @@
 
 namespace FactoryMethodPattern
 {
+
+    public class Customer
+    {
+        public Guid Id { get; set; }
+        public string FirstName { get; set; }
+    }
+
+    public interface ICustomerService
+    {
+        Customer Get(Guid id);
+    }
+
+    
+
+    public class DbConnection
+    {
+        public DbConnection(string connectionString)
+        {
+            ConnectionString = connectionString;
+        }
+
+        public string ConnectionString { get; set; }
+    }
+
+    public class DbCustomerService : ICustomerService
+    {
+        private readonly DbConnection connection;
+
+        public DbCustomerService(DbConnection connection)
+        {
+            this.connection = connection;
+            
+        }
+
+        public Customer Get(Guid id)
+        {
+
+            return new Customer();
+        }
+    }
+
+  
+
     class Program
     {
         static void Main(string[] args)
         {
             Console.WriteLine("Hello Factory Method Pattern!");
 
-            VisitCalculateAmountTest();
+            DbConnection connection = new DbConnection("server=localhost;user ID=sa;Password=sa;Database=MyDb");
+
+            ICustomerService customerService = new DbCustomerService(connection);      
+            
+            Factory.Create<ICustomerService>()
+
+            Customer customer = customerService.Get(Guid.NewGuid());
+
+           //  VisitCalculateAmountTest();
         }
 
         private static void VisitCalculateAmountTest()

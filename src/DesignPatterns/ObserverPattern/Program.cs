@@ -1,20 +1,80 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Reactive.Linq;
 using System.Threading;
 
 namespace ObserverPattern
 {
+    // Hot source
+
+    // Cold source
+    public class TempObservable : IObservable<float>
+    {
+        private ICollection<IObserver<float>> observers = new Collection<IObserver<float>>();
+
+        public IDisposable Subscribe(IObserver<float> observer)
+        {
+            observers.Add(observer);
+
+            float[] temperatures = new float[] { 0.6f, 12f, 5f, 7f, 30f };
+
+            foreach (var temp in temperatures)
+            {
+                observer.OnNext(temp);
+            }
+
+            observer.OnCompleted();
+
+            return null;
+
+        }
+    }
+
+    public class ConsoleObserver : IObserver<float>
+    {
+        public void OnCompleted()
+        {
+            Console.WriteLine("End of transmission");
+        }
+
+        public void OnError(Exception error)
+        {
+            Console.WriteLine(error.Message);
+        }
+
+        public void OnNext(float value)
+        {
+            Console.WriteLine(value);
+        }
+    }
+
     class Program
     {
         static void Main(string[] args)
         {
             Console.WriteLine("Hello Observer Pattern!");
 
-            Covid19Test();
+            //       ObservableTest();
+
+            //            Covid19Test();
 
 
-            //   CpuTest();
+            //              CpuTest();
+
+            CpuObservableTest();
+
+            Console.ReadKey();
+        }
+
+        private static void ObservableTest()
+        {
+            TempObservable source = new TempObservable();
+
+            IObserver<float> observer = new ConsoleObserver();
+
+            source.Subscribe(observer);
         }
 
         private static void Covid19Test()
@@ -41,6 +101,36 @@ namespace ObserverPattern
                     Console.ResetColor();
                 }
             }
+        }
+
+        private static void CpuObservableTest()
+        {
+            var cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+
+            // dotnet add package System.Reactive
+
+            IObservable<float> source = Observable.Interval(TimeSpan.FromSeconds(1))
+                .Select(_ => cpuCounter.NextValue());
+
+            source.Subscribe(cpu => Console.WriteLine($"CPU {cpu}%"));
+
+            IObservable<float> overLimitCpuSource = source.Where(cpu => cpu > 50);
+
+            overLimitCpuSource.Subscribe(cpu =>
+            {
+                Console.BackgroundColor = ConsoleColor.Red;
+                Console.WriteLine($"CPU {cpu} %");
+                Console.ResetColor();
+            });
+
+            var bufferCpuSourceTime = source.Buffer(TimeSpan.FromSeconds(10));
+
+            var bufferCpuSourceQty = source.Buffer(3);
+
+            var buffer = bufferCpuSourceTime.Merge(bufferCpuSourceQty);
+
+
+
         }
 
         private static void CpuTest()

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.1169
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30709.132
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01_CreationalsPatterns", "01_CreationalsPatterns", "{F2386B77-C42E-43C8-8A89-C1DA19D3DFCA}"
 EndProject
@@ -45,7 +45,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediatorPattern", "Mediator
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FacadePattern", "FacadePattern\FacadePattern.csproj", "{8B690590-72CA-4C82-B7D1-9AD5BA315A96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NullObjectPattern", "NullObjectPattern\NullObjectPattern.csproj", "{FE31E645-0093-4306-A09D-FF0572C2A6CD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NullObjectPattern", "NullObjectPattern\NullObjectPattern.csproj", "{FE31E645-0093-4306-A09D-FF0572C2A6CD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Rules", "Rules", "{A39EFD7E-27D1-4A59-9764-A89F06355453}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DRY", "DRY\DRY.csproj", "{4B1750C2-6745-45FD-BA4F-6FD078534793}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -129,6 +133,10 @@ Global
 		{FE31E645-0093-4306-A09D-FF0572C2A6CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FE31E645-0093-4306-A09D-FF0572C2A6CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FE31E645-0093-4306-A09D-FF0572C2A6CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B1750C2-6745-45FD-BA4F-6FD078534793}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B1750C2-6745-45FD-BA4F-6FD078534793}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B1750C2-6745-45FD-BA4F-6FD078534793}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B1750C2-6745-45FD-BA4F-6FD078534793}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -153,6 +161,7 @@ Global
 		{179FAE04-DB10-4957-BCC3-0749DE8905CA} = {AE8F46A4-887F-4B91-99AD-A883344408B6}
 		{8B690590-72CA-4C82-B7D1-9AD5BA315A96} = {C3AACDBB-31B7-423D-8FA9-C41E6C039CAB}
 		{FE31E645-0093-4306-A09D-FF0572C2A6CD} = {AE8F46A4-887F-4B91-99AD-A883344408B6}
+		{4B1750C2-6745-45FD-BA4F-6FD078534793} = {A39EFD7E-27D1-4A59-9764-A89F06355453}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AC97C506-DE41-412B-BB0D-1ECD765DD65D}

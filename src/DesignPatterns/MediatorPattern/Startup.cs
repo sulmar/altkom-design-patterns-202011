@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MediatorPattern.IServices;
 using MediatorPattern.Services;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.Options;
 
 namespace MediatorPattern
 {
+
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -31,6 +33,10 @@ namespace MediatorPattern
             services.AddSingleton<IMessageService, EmailMessageService>();
 
             services.AddControllers();
+
+            // dotnet add package MediatR.Extensions.Microsoft.DependencyInjection
+            services.AddMediatR(typeof(Startup));
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

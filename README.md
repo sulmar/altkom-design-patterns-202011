@@ -25,3 +25,8 @@
 
 ## Wizualizacja Digraph
 http://www.webgraphviz.com/
+
+## Biblioteki
+### Fluent Regex 
+https://github.com/VerbalExpressions/CSharpVerbalExpressions
+

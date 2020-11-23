@@ -12,7 +12,21 @@ namespace FlyweightPattern
         {
             Console.WriteLine("Hello Flyweight Pattern!");
 
+            GameTest();
+
+            SolutionGameTest();
+        }
+
+        private static void GameTest()
+        {
             Game game = new Game(TreeFactory.Create());
+
+            game.Play();
+        }
+
+        private static void SolutionGameTest()
+        {
+            SolutionGame game = new SolutionGame(TreeConcretFactory.Create());
 
             game.Play();
         }
@@ -84,6 +98,99 @@ namespace FlyweightPattern
             Console.WriteLine($"Tree: mesh: {mesh} bark: {bark} leaves: {leaves} ({position.X}:{position.Y}) leafColor={leafTint}");
         }
     }
+
+    #region Solution
+
+    // rozbijamy klasę Tree na osobne klasy TreeModel i TreeConcret:
+
+    public class TreeModel
+    {
+        private Mesh mesh;
+        private Texture bark;
+        private Texture leaves;
+
+        public TreeModel(Mesh mesh, Texture bark, Texture leaves)
+        {
+            this.mesh = mesh;
+            this.bark = bark;
+            this.leaves = leaves;
+        }
+
+        public void Draw(int x, int y, Color leafColor)
+        {
+            Console.WriteLine($"Tree: mesh: {mesh} bark: {bark} leaves: {leaves} ({x}:{y}) leafColor={leafColor}");
+        }
+    }
+
+    public class TreeConcret
+    {
+        public TreeModel TreeModel { get; set; }
+
+        Vector position;
+        double height;
+        double thickness;
+        Color barkTint;
+        Color leafTint;
+
+        public TreeConcret(TreeModel treeModel, Vector position, double height, double thickness, Color barkTint, Color leafTint)
+        {
+            TreeModel = treeModel;
+            this.position = position;
+            this.height = height;
+            this.thickness = thickness;
+            this.barkTint = barkTint;
+            this.leafTint = leafTint;
+        }
+
+        public void Draw()
+        {
+            TreeModel.Draw(position.X, position.Y, leafTint);
+        }
+    }
+
+
+    public class TreeConcretFactory
+    {
+        public static IEnumerable<TreeConcret> Create()
+        {
+            TreeModel treeModel1 = new TreeModel(new Mesh(10), new Texture("###"), new Texture("==="));
+            TreeModel treeModel2 = new TreeModel(new Mesh(5), new Texture(">>>"), new Texture("<<<"));
+
+            IEnumerable<TreeConcret> trees = new List<TreeConcret>
+            {
+                new TreeConcret(treeModel1, new Vector(10, 30), 30, 1, new Color(200, 100, 50), new Color(100, 100, 100)),
+                new TreeConcret(treeModel1, new Vector(20, 15), 30, 1, new Color(200, 100, 50), new Color(100, 100, 100)),
+                new TreeConcret(treeModel1, new Vector(40, 30), 30, 1, new Color(200, 100, 50), new Color(100, 100, 100)),
+                new TreeConcret(treeModel1, new Vector(60, 30), 30, 1, new Color(200, 100, 50), new Color(100, 100, 100)),
+                new TreeConcret(treeModel2, new Vector(40, 30), 30, 1, new Color(200, 100, 50), new Color(100, 100, 100)),
+                new TreeConcret(treeModel2, new Vector(60, 30), 30, 1, new Color(200, 100, 50), new Color(100, 100, 100)),
+
+            };
+
+            return trees;
+        }
+    }
+
+    public class SolutionGame
+    {
+        private IEnumerable<TreeConcret> trees { get; set; }
+
+        public SolutionGame(IEnumerable<TreeConcret> trees)
+        {
+            this.trees = trees;
+        }
+
+        public void Play()
+        {
+            foreach (var tree in trees)
+            {
+                tree.Draw();
+            }
+        }
+    }
+
+    #endregion
+
 
     public class Vector
     {

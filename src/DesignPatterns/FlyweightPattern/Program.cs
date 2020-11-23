@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualBasic;
+﻿using BenchmarkDotNet.Running;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,9 +13,11 @@ namespace FlyweightPattern
         {
             Console.WriteLine("Hello Flyweight Pattern!");
 
-            GameTest();
+            var summary = BenchmarkRunner.Run<StandardVsFlyweightBenchmarks>();
 
-            SolutionGameTest();
+            //GameTest();
+
+            //SolutionGameTest();
         }
 
         private static void GameTest()
